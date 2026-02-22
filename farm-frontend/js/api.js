@@ -3,7 +3,7 @@
  * All API calls go through these functions.
  */
 // ✅ Railway backend URL
-const DEPLOYED_URL = 'https://farm-managment-system-production.up.railway.app';
+const DEPLOYED_URL = 'https://farm-managment-system-production-2221.up.railway.app';
 
 const API_BASE = DEPLOYED_URL || 'http://localhost:8080';
 
