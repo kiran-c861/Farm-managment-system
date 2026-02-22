@@ -2,7 +2,11 @@
  * API Helper - Centralized HTTP client with JWT injection.
  * All API calls go through these functions.
  */
-const API_BASE = 'http://localhost:8080';
+// ✅ Change this to your Railway URL when deployed:
+// const DEPLOYED_URL = 'https://your-app.up.railway.app';
+const DEPLOYED_URL = null; // Set your Railway URL here after deploying
+
+const API_BASE = DEPLOYED_URL || 'http://localhost:8080';
 
 function getToken() {
     return localStorage.getItem('token');
