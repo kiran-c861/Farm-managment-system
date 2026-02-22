@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory – AgriFarm</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🌾</div>
+                <div class="logo-text">AgriFarm <span>Farm Management System</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <div class="nav-section-title">Farm Operations</div>
+                <a href="crops.html" class="nav-item"><i class="fas fa-seedling"></i> Crop Management</a>
+                <a href="livestock.html" class="nav-item"><i class="fas fa-horse"></i> Livestock</a>
+                <a href="inventory.html" class="nav-item active"><i class="fas fa-boxes"></i> Inventory</a>
+                <div class="nav-section-title">Human Resources</div>
+                <a href="workers.html" class="nav-item"><i class="fas fa-users"></i> Workers</a>
+                <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i> Tasks</a>
+                <div class="nav-section-title">Finance</div>
+                <a href="expenses.html" class="nav-item"><i class="fas fa-wallet"></i> Expenses & Sales</a>
+                <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="name" id="user-name">Admin</div>
+                        <div class="role" id="user-role">ADMIN</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color:var(--text-muted);font-size:14px;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title">Inventory <span>Stock Management</span></div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add Item</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div id="lowStockBanner" class="low-stock-alert-bar" style="display:none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="lowStockText">Low stock alert!</span>
+                </div>
+
+                <div class="actions-bar">
+                    <div class="search-bar-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-bar" id="searchInput" placeholder="Search inventory..."
+                            oninput="filterTable()" />
+                    </div>
+                    <select class="form-control" id="catFilter" style="width:160px;" onchange="filterTable()">
+                        <option value="">All Categories</option>
+                        <option>Seeds</option>
+                        <option>Fertilizers</option>
+                        <option>Pesticides</option>
+                        <option>Tools</option>
+                        <option>Equipment</option>
+                    </select>
+                </div>
+
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title"><i class="fas fa-boxes"
+                                style="color:var(--primary);margin-right:8px;"></i>Inventory Items</div>
+                        <span id="itemCount" style="color:var(--text-muted);font-size:13px;">Loading...</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                    <th>Unit</th>
+                                    <th>Min Level</th>
+                                    <th>Unit Price</th>
+                                    <th>Supplier</th>
+                                    <th>Stock Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="emptyState" class="empty-state" style="display:none;">
+                        <i class="fas fa-boxes"></i>
+                        <h3>No inventory items</h3>
+                        <p>Add seeds, fertilizers, tools, and equipment.</p>
+                        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add
+                            Item</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="itemModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Add Inventory Item</div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="itemId" />
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Item Name *</label>
+                        <input type="text" id="itemName" class="form-control" placeholder="e.g. Urea Fertilizer" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Category</label>
+                        <select id="itemCategory" class="form-control">
+                            <option>Seeds</option>
+                            <option>Fertilizers</option>
+                            <option>Pesticides</option>
+                            <option>Tools</option>
+                            <option>Equipment</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Quantity</label>
+                        <input type="number" id="itemQty" class="form-control" placeholder="0" min="0" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Unit</label>
+                        <input type="text" id="itemUnit" class="form-control" placeholder="e.g. kg, liters, pieces" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Min Stock Level</label>
+                        <input type="number" id="itemMinStock" class="form-control" placeholder="Alert threshold" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Unit Price (₹)</label>
+                        <input type="number" id="itemPrice" class="form-control" placeholder="0.00" />
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Supplier</label>
+                    <input type="text" id="itemSupplier" class="form-control" placeholder="Supplier name" />
+                </div>
+                <div class="form-group"><label class="form-label">Description</label>
+                    <textarea id="itemDesc" class="form-control" rows="2" placeholder="Optional notes..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveItem()"><i class="fas fa-save"></i> Save Item</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/api.js"></script>
+    <script src="js/mobile.js"></script>
+<script src="js/auth.js"></script>
+    <script>
+        requireAuth(); populateUserInfo();
+        let items = [];
+
+        async function loadInventory() {
+            try {
+                const farmId = getFarmId();
+                items = await apiGet(`/api/inventory/farm/${farmId}`);
+                const lowStock = await apiGet(`/api/inventory/farm/${farmId}/low-stock`);
+                if (lowStock.length > 0) {
+                    document.getElementById('lowStockBanner').style.display = 'flex';
+                    document.getElementById('lowStockText').textContent = `⚠ ${lowStock.length} item(s) are below minimum stock: ${lowStock.map(x => x.name).join(', ')}`;
+                }
+                renderTable(items);
+            } catch (e) { showToast('Failed to load inventory: ' + e.message, 'error'); }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('inventoryTable');
+            document.getElementById('itemCount').textContent = data.length + ' items';
+            if (data.length === 0) { tbody.innerHTML = ''; document.getElementById('emptyState').style.display = 'block'; return; }
+            document.getElementById('emptyState').style.display = 'none';
+            tbody.innerHTML = data.map((item, i) => {
+                const isLow = item.minStockLevel && item.quantity <= item.minStockLevel;
+                return `<tr class="${isLow ? '' : ''}">
+        <td style="color:var(--text-muted);">${i + 1}</td>
+        <td><strong>${item.name}</strong></td>
+        <td><span class="badge badge-info">${item.category || '—'}</span></td>
+        <td><strong style="color:${isLow ? '#ef4444' : 'inherit'}">${item.quantity || 0}</strong></td>
+        <td>${item.unit || '—'}</td>
+        <td>${item.minStockLevel || '—'}</td>
+        <td>${formatCurrency(item.unitPrice)}</td>
+        <td>${item.supplier || '—'}</td>
+        <td><span class="badge ${isLow ? 'badge-danger' : 'badge-success'}">${isLow ? '⚠ Low Stock' : 'In Stock'}</span></td>
+        <td>
+          <button class="btn btn-outline btn-sm btn-icon" onclick="editItem(${item.id})"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteItem(${item.id})" style="margin-left:6px;"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`;
+            }).join('');
+        }
+
+        function filterTable() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const cat = document.getElementById('catFilter').value;
+            renderTable(items.filter(x => (!q || x.name.toLowerCase().includes(q)) && (!cat || x.category === cat)));
+        }
+
+        function openModal() {
+            document.getElementById('modalTitle').textContent = 'Add Inventory Item';
+            document.getElementById('itemId').value = '';
+            ['itemName', 'itemQty', 'itemUnit', 'itemMinStock', 'itemPrice', 'itemSupplier', 'itemDesc'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('itemModal').classList.add('active');
+        }
+        function closeModal() { document.getElementById('itemModal').classList.remove('active'); }
+
+        function editItem(id) {
+            const item = items.find(x => x.id === id);
+            if (!item) return;
+            document.getElementById('modalTitle').textContent = 'Edit Item';
+            document.getElementById('itemId').value = item.id;
+            document.getElementById('itemName').value = item.name || '';
+            document.getElementById('itemCategory').value = item.category || 'Seeds';
+            document.getElementById('itemQty').value = item.quantity || '';
+            document.getElementById('itemUnit').value = item.unit || '';
+            document.getElementById('itemMinStock').value = item.minStockLevel || '';
+            document.getElementById('itemPrice').value = item.unitPrice || '';
+            document.getElementById('itemSupplier').value = item.supplier || '';
+            document.getElementById('itemDesc').value = item.description || '';
+            document.getElementById('itemModal').classList.add('active');
+        }
+
+        async function saveItem() {
+            const id = document.getElementById('itemId').value;
+            const body = {
+                name: document.getElementById('itemName').value.trim(),
+                category: document.getElementById('itemCategory').value,
+                quantity: parseFloat(document.getElementById('itemQty').value) || 0,
+                unit: document.getElementById('itemUnit').value.trim(),
+                minStockLevel: parseFloat(document.getElementById('itemMinStock').value) || null,
+                unitPrice: parseFloat(document.getElementById('itemPrice').value) || null,
+                supplier: document.getElementById('itemSupplier').value.trim(),
+                description: document.getElementById('itemDesc').value.trim()
+            };
+            if (!body.name) { showToast('Item name is required', 'error'); return; }
+            try {
+                if (id) await apiPut(`/api/inventory/${id}`, body);
+                else await apiPost(`/api/inventory/farm/${getFarmId()}`, body);
+                showToast(id ? 'Item updated!' : 'Item added!', 'success');
+                closeModal(); loadInventory();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function deleteItem(id) {
+            confirmDelete('Delete this inventory item?', async () => {
+                try { await apiDelete(`/api/inventory/${id}`); showToast('Item deleted.', 'success'); loadInventory(); }
+                catch (e) { showToast(e.message, 'error'); }
+            });
+        }
+
+        loadInventory();
+    </script>
+</body>
+
+</html>

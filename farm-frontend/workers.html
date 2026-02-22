@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workers – AgriFarm</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🌾</div>
+                <div class="logo-text">AgriFarm <span>Farm Management System</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <div class="nav-section-title">Farm Operations</div>
+                <a href="crops.html" class="nav-item"><i class="fas fa-seedling"></i> Crop Management</a>
+                <a href="livestock.html" class="nav-item"><i class="fas fa-horse"></i> Livestock</a>
+                <a href="inventory.html" class="nav-item"><i class="fas fa-boxes"></i> Inventory</a>
+                <div class="nav-section-title">Human Resources</div>
+                <a href="workers.html" class="nav-item active"><i class="fas fa-users"></i> Workers</a>
+                <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i> Tasks</a>
+                <div class="nav-section-title">Finance</div>
+                <a href="expenses.html" class="nav-item"><i class="fas fa-wallet"></i> Expenses & Sales</a>
+                <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="name" id="user-name">Admin</div>
+                        <div class="role" id="user-role">ADMIN</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color:var(--text-muted);font-size:14px;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title">Workers <span>Human Resources</span></div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add
+                        Worker</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="actions-bar">
+                    <div class="search-bar-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-bar" id="searchInput" placeholder="Search workers..."
+                            oninput="filterTable()" />
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title"><i class="fas fa-users"
+                                style="color:var(--primary);margin-right:8px;"></i>Worker Directory</div>
+                        <span id="workerCount" style="color:var(--text-muted);font-size:13px;">Loading...</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Salary / month</th>
+                                    <th>Join Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workerTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="emptyState" class="empty-state" style="display:none;">
+                        <i class="fas fa-users"></i>
+                        <h3>No workers found</h3>
+                        <p>Add your farm employees to manage attendance and tasks.</p>
+                        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add
+                            Worker</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="workerModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Add Worker</div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="workerId" />
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Full Name *</label>
+                        <input type="text" id="workerName" class="form-control" placeholder="e.g. Ravi Kumar" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Role</label>
+                        <input type="text" id="workerRole" class="form-control" placeholder="e.g. Field Worker" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Phone</label>
+                        <input type="tel" id="workerPhone" class="form-control" placeholder="+91 XXXXXXXXXX" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Email</label>
+                        <input type="email" id="workerEmail" class="form-control" placeholder="worker@email.com" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Monthly Salary (₹)</label>
+                        <input type="number" id="workerSalary" class="form-control" placeholder="0" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Status</label>
+                        <select id="workerActive" class="form-control">
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Address</label>
+                    <textarea id="workerAddress" class="form-control" rows="2" placeholder="Full address..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveWorker()"><i class="fas fa-save"></i> Save Worker</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/api.js"></script>
+    <script src="js/mobile.js"></script>
+<script src="js/auth.js"></script>
+    <script>
+        requireAuth(); populateUserInfo();
+        let workers = [];
+
+        async function loadWorkers() {
+            try {
+                workers = await apiGet(`/api/workers/farm/${getFarmId()}`);
+                renderTable(workers);
+            } catch (e) { showToast('Failed to load workers: ' + e.message, 'error'); }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('workerTable');
+            document.getElementById('workerCount').textContent = data.length + ' workers';
+            if (data.length === 0) { tbody.innerHTML = ''; document.getElementById('emptyState').style.display = 'block'; return; }
+            document.getElementById('emptyState').style.display = 'none';
+            tbody.innerHTML = data.map((w, i) => `<tr>
+      <td style="color:var(--text-muted);">${i + 1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">${(w.name || 'W')[0]}</div>
+          <strong>${w.name}</strong>
+        </div>
+      </td>
+      <td>${w.role || '—'}</td>
+      <td>${w.phone || '—'}</td>
+      <td>${w.email || '—'}</td>
+      <td><strong>${formatCurrency(w.salary)}</strong></td>
+      <td>${formatDate(w.joinDate)}</td>
+      <td><span class="badge ${w.isActive ? 'badge-success' : 'badge-muted'}">${w.isActive ? 'Active' : 'Inactive'}</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editWorker(${w.id})"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteWorker(${w.id})" style="margin-left:6px;"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`).join('');
+        }
+
+        function filterTable() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            renderTable(workers.filter(w => !q || w.name.toLowerCase().includes(q) || (w.role || '').toLowerCase().includes(q)));
+        }
+
+        function openModal() {
+            document.getElementById('modalTitle').textContent = 'Add Worker';
+            document.getElementById('workerId').value = '';
+            ['workerName', 'workerRole', 'workerPhone', 'workerEmail', 'workerSalary', 'workerAddress'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('workerActive').value = 'true';
+            document.getElementById('workerModal').classList.add('active');
+        }
+        function closeModal() { document.getElementById('workerModal').classList.remove('active'); }
+
+        function editWorker(id) {
+            const w = workers.find(x => x.id === id);
+            if (!w) return;
+            document.getElementById('modalTitle').textContent = 'Edit Worker';
+            document.getElementById('workerId').value = w.id;
+            document.getElementById('workerName').value = w.name || '';
+            document.getElementById('workerRole').value = w.role || '';
+            document.getElementById('workerPhone').value = w.phone || '';
+            document.getElementById('workerEmail').value = w.email || '';
+            document.getElementById('workerSalary').value = w.salary || '';
+            document.getElementById('workerActive').value = w.isActive ? 'true' : 'false';
+            document.getElementById('workerAddress').value = w.address || '';
+            document.getElementById('workerModal').classList.add('active');
+        }
+
+        async function saveWorker() {
+            const id = document.getElementById('workerId').value;
+            const body = {
+                name: document.getElementById('workerName').value.trim(),
+                role: document.getElementById('workerRole').value.trim(),
+                phone: document.getElementById('workerPhone').value.trim(),
+                email: document.getElementById('workerEmail').value.trim(),
+                salary: parseFloat(document.getElementById('workerSalary').value) || null,
+                isActive: document.getElementById('workerActive').value === 'true',
+                address: document.getElementById('workerAddress').value.trim()
+            };
+            if (!body.name) { showToast('Worker name is required', 'error'); return; }
+            try {
+                if (id) await apiPut(`/api/workers/${id}`, body);
+                else await apiPost(`/api/workers/farm/${getFarmId()}`, body);
+                showToast(id ? 'Worker updated!' : 'Worker added!', 'success');
+                closeModal(); loadWorkers();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function deleteWorker(id) {
+            confirmDelete('Remove this worker?', async () => {
+                try { await apiDelete(`/api/workers/${id}`); showToast('Worker removed.', 'success'); loadWorkers(); }
+                catch (e) { showToast(e.message, 'error'); }
+            });
+        }
+
+        loadWorkers();
+    </script>
+</body>
+
+</html>

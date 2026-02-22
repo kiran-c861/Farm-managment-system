@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Livestock – AgriFarm</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🌾</div>
+                <div class="logo-text">AgriFarm <span>Farm Management System</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <div class="nav-section-title">Farm Operations</div>
+                <a href="crops.html" class="nav-item"><i class="fas fa-seedling"></i> Crop Management</a>
+                <a href="livestock.html" class="nav-item active"><i class="fas fa-horse"></i> Livestock</a>
+                <a href="inventory.html" class="nav-item"><i class="fas fa-boxes"></i> Inventory</a>
+                <div class="nav-section-title">Human Resources</div>
+                <a href="workers.html" class="nav-item"><i class="fas fa-users"></i> Workers</a>
+                <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i> Tasks</a>
+                <div class="nav-section-title">Finance</div>
+                <a href="expenses.html" class="nav-item"><i class="fas fa-wallet"></i> Expenses & Sales</a>
+                <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="name" id="user-name">Admin</div>
+                        <div class="role" id="user-role">ADMIN</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color:var(--text-muted);font-size:14px;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title">Livestock <span>Animal Management</span></div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add
+                        Animal</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="actions-bar">
+                    <div class="search-bar-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-bar" id="searchInput" placeholder="Search animals..."
+                            oninput="filterTable()" />
+                    </div>
+                    <select class="form-control" id="healthFilter" style="width:160px;" onchange="filterTable()">
+                        <option value="">All Health</option>
+                        <option>Healthy</option>
+                        <option>Sick</option>
+                        <option>Under Treatment</option>
+                    </select>
+                </div>
+
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title"><i class="fas fa-horse"
+                                style="color:var(--primary);margin-right:8px;"></i>Animals</div>
+                        <span id="animalCount" style="color:var(--text-muted);font-size:13px;">Loading...</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Tag #</th>
+                                    <th>Type</th>
+                                    <th>Breed</th>
+                                    <th>Gender</th>
+                                    <th>Age (months)</th>
+                                    <th>Weight (kg)</th>
+                                    <th>Health Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="livestockTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="emptyState" class="empty-state" style="display:none;">
+                        <i class="fas fa-horse"></i>
+                        <h3>No livestock records</h3>
+                        <p>Add your farm animals to start tracking their health.</p>
+                        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add
+                            Animal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="animalModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Add Animal</div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="animalId" />
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Type *</label>
+                        <select id="animalType" class="form-control">
+                            <option>Cow</option>
+                            <option>Goat</option>
+                            <option>Sheep</option>
+                            <option>Pig</option>
+                            <option>Chicken</option>
+                            <option>Buffalo</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Breed</label>
+                        <input type="text" id="animalBreed" class="form-control" placeholder="e.g. Holstein" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Gender</label>
+                        <select id="animalGender" class="form-control">
+                            <option>Male</option>
+                            <option>Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Age (months)</label>
+                        <input type="number" id="animalAge" class="form-control" min="0" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Tag Number</label>
+                        <input type="text" id="animalTag" class="form-control" placeholder="Unique ID e.g. COW-001" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Weight (kg)</label>
+                        <input type="number" id="animalWeight" class="form-control" placeholder="0" />
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Health Status</label>
+                    <select id="healthStatus" class="form-control">
+                        <option>Healthy</option>
+                        <option>Sick</option>
+                        <option>Under Treatment</option>
+                        <option>Quarantined</option>
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label">Notes</label>
+                    <textarea id="animalNotes" class="form-control" rows="2"
+                        placeholder="Additional info..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveAnimal()"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/api.js"></script>
+    <script src="js/mobile.js"></script>
+<script src="js/auth.js"></script>
+    <script>
+        requireAuth(); populateUserInfo();
+        let animals = [];
+
+        const healthColors = { Healthy: 'badge-success', Sick: 'badge-danger', 'Under Treatment': 'badge-warning', Quarantined: 'badge-info' };
+
+        async function loadLivestock() {
+            try {
+                animals = await apiGet(`/api/livestock/farm/${getFarmId()}`);
+                renderTable(animals);
+            } catch (e) { showToast('Failed to load livestock: ' + e.message, 'error'); }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('livestockTable');
+            document.getElementById('animalCount').textContent = data.length + ' animals';
+            if (data.length === 0) { tbody.innerHTML = ''; document.getElementById('emptyState').style.display = 'block'; return; }
+            document.getElementById('emptyState').style.display = 'none';
+            tbody.innerHTML = data.map((a, i) => `<tr>
+      <td style="color:var(--text-muted);">${i + 1}</td>
+      <td><code style="background:var(--dark);padding:2px 7px;border-radius:4px;font-size:12px;">${a.tagNumber || '—'}</code></td>
+      <td><strong>${a.type}</strong></td>
+      <td>${a.breed || '—'}</td>
+      <td>${a.gender || '—'}</td>
+      <td>${a.age != null ? a.age : '—'}</td>
+      <td>${a.weight != null ? a.weight : '—'}</td>
+      <td><span class="badge ${healthColors[a.healthStatus] || 'badge-muted'}">${a.healthStatus || 'Unknown'}</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editAnimal(${a.id})"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteAnimal(${a.id})" style="margin-left:6px;"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`).join('');
+        }
+
+        function filterTable() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const h = document.getElementById('healthFilter').value;
+            renderTable(animals.filter(a => (!q || a.type.toLowerCase().includes(q) || (a.breed || '').toLowerCase().includes(q) || (a.tagNumber || '').toLowerCase().includes(q)) && (!h || a.healthStatus === h)));
+        }
+
+        function openModal() {
+            document.getElementById('modalTitle').textContent = 'Add Animal';
+            document.getElementById('animalId').value = '';
+            ['animalBreed', 'animalAge', 'animalTag', 'animalWeight', 'animalNotes'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('animalModal').classList.add('active');
+        }
+        function closeModal() { document.getElementById('animalModal').classList.remove('active'); }
+
+        function editAnimal(id) {
+            const a = animals.find(x => x.id === id);
+            if (!a) return;
+            document.getElementById('modalTitle').textContent = 'Edit Animal';
+            document.getElementById('animalId').value = a.id;
+            document.getElementById('animalType').value = a.type || 'Cow';
+            document.getElementById('animalBreed').value = a.breed || '';
+            document.getElementById('animalGender').value = a.gender || 'Male';
+            document.getElementById('animalAge').value = a.age || '';
+            document.getElementById('animalTag').value = a.tagNumber || '';
+            document.getElementById('animalWeight').value = a.weight || '';
+            document.getElementById('healthStatus').value = a.healthStatus || 'Healthy';
+            document.getElementById('animalNotes').value = a.notes || '';
+            document.getElementById('animalModal').classList.add('active');
+        }
+
+        async function saveAnimal() {
+            const id = document.getElementById('animalId').value;
+            const body = {
+                type: document.getElementById('animalType').value,
+                breed: document.getElementById('animalBreed').value.trim(),
+                gender: document.getElementById('animalGender').value,
+                age: parseInt(document.getElementById('animalAge').value) || null,
+                tagNumber: document.getElementById('animalTag').value.trim() || null,
+                weight: parseFloat(document.getElementById('animalWeight').value) || null,
+                healthStatus: document.getElementById('healthStatus').value,
+                notes: document.getElementById('animalNotes').value.trim()
+            };
+            try {
+                if (id) await apiPut(`/api/livestock/${id}`, body);
+                else await apiPost(`/api/livestock/farm/${getFarmId()}`, body);
+                showToast(id ? 'Record updated!' : 'Animal added!', 'success');
+                closeModal(); loadLivestock();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function deleteAnimal(id) {
+            confirmDelete('Delete this animal record?', async () => {
+                try { await apiDelete(`/api/livestock/${id}`); showToast('Deleted.', 'success'); loadLivestock(); }
+                catch (e) { showToast(e.message, 'error'); }
+            });
+        }
+
+        loadLivestock();
+    </script>
+</body>
+
+</html>

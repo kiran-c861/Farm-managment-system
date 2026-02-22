@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports – AgriFarm</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🌾</div>
+                <div class="logo-text">AgriFarm <span>Farm Management System</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <div class="nav-section-title">Farm Operations</div>
+                <a href="crops.html" class="nav-item"><i class="fas fa-seedling"></i> Crop Management</a>
+                <a href="livestock.html" class="nav-item"><i class="fas fa-horse"></i> Livestock</a>
+                <a href="inventory.html" class="nav-item"><i class="fas fa-boxes"></i> Inventory</a>
+                <div class="nav-section-title">Human Resources</div>
+                <a href="workers.html" class="nav-item"><i class="fas fa-users"></i> Workers</a>
+                <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i> Tasks</a>
+                <div class="nav-section-title">Finance</div>
+                <a href="expenses.html" class="nav-item"><i class="fas fa-wallet"></i> Expenses & Sales</a>
+                <a href="reports.html" class="nav-item active"><i class="fas fa-chart-bar"></i> Reports</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="name" id="user-name">Admin</div>
+                        <div class="role" id="user-role">ADMIN</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color:var(--text-muted);font-size:14px;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title">Reports <span>Analytics & Exports</span></div>
+            </header>
+
+            <div class="page-content">
+                <!-- Profit/Loss Filter -->
+                <div class="data-card" style="margin-bottom:24px;">
+                    <div class="data-card-header">
+                        <div class="data-card-title"><i class="fas fa-calculator"
+                                style="color:var(--primary);margin-right:8px;"></i>Profit / Loss Report</div>
+                    </div>
+                    <div style="padding:20px 24px;display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;">
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Month</label>
+                            <select id="repMonth" class="form-control" style="width:130px;">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Year</label>
+                            <input type="number" id="repYear" class="form-control" value="2025" style="width:110px;" />
+                        </div>
+                        <button class="btn btn-primary" onclick="loadProfitLoss()"><i class="fas fa-search"></i>
+                            Generate</button>
+                    </div>
+                    <div id="profitLossResult" style="padding:0 24px 20px;display:none;">
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+                            <div
+                                style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:16px;text-align:center;">
+                                <div
+                                    style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">
+                                    Total Expenses</div>
+                                <div style="font-size:28px;font-weight:800;color:#ef4444;margin-top:8px;"
+                                    id="plExpenses">₹0</div>
+                            </div>
+                            <div
+                                style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:16px;text-align:center;">
+                                <div
+                                    style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">
+                                    Total Revenue</div>
+                                <div style="font-size:28px;font-weight:800;color:#10b981;margin-top:8px;"
+                                    id="plRevenue">₹0</div>
+                            </div>
+                            <div id="profitCard"
+                                style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:16px;text-align:center;">
+                                <div
+                                    style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">
+                                    Net Profit/Loss</div>
+                                <div style="font-size:28px;font-weight:800;color:#8b5cf6;margin-top:8px;" id="plProfit">
+                                    ₹0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Charts -->
+                <div class="charts-grid" style="margin-bottom:24px;">
+                    <div class="chart-card">
+                        <div class="chart-card-title">Expense Categories Breakdown</div>
+                        <canvas id="expCatChart" height="130"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-card-title">Crop Status Distribution</div>
+                        <canvas id="cropStatusChart" height="130"></canvas>
+                    </div>
+                </div>
+
+                <!-- Export Buttons -->
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title"><i class="fas fa-download"
+                                style="color:var(--primary);margin-right:8px;"></i>Export Data</div>
+                    </div>
+                    <div style="padding:24px;display:flex;gap:16px;flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="exportToCSV('expenses')">
+                            <i class="fas fa-file-csv"></i> Export Expenses CSV
+                        </button>
+                        <button class="btn btn-primary" onclick="exportToCSV('sales')">
+                            <i class="fas fa-file-csv"></i> Export Sales CSV
+                        </button>
+                        <button class="btn btn-outline" onclick="printReport()">
+                            <i class="fas fa-print"></i> Print Report
+                        </button>
+                        <a href="/api/reports/pdf?farmId=1" target="_blank" class="btn btn-outline">
+                            <i class="fas fa-file-pdf" style="color:#ef4444;"></i> Download PDF
+                        </a>
+                        <a href="/api/reports/excel?farmId=1" target="_blank" class="btn btn-outline">
+                            <i class="fas fa-file-excel" style="color:#10b981;"></i> Download Excel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/api.js"></script>
+    <script src="js/mobile.js"></script>
+<script src="js/auth.js"></script>
+    <script>
+        requireAuth(); populateUserInfo();
+
+        // Set current month
+        document.getElementById('repMonth').value = new Date().getMonth() + 1;
+        document.getElementById('repYear').value = new Date().getFullYear();
+
+        async function loadProfitLoss() {
+            const month = document.getElementById('repMonth').value;
+            const year = document.getElementById('repYear').value;
+            const farmId = getFarmId();
+            try {
+                const data = await apiGet(`/api/expenses/farm/${farmId}/profit-loss?month=${month}&year=${year}`);
+                document.getElementById('plExpenses').textContent = formatCurrency(data.totalExpenses);
+                document.getElementById('plRevenue').textContent = formatCurrency(data.totalRevenue);
+                document.getElementById('plProfit').textContent = formatCurrency(data.profitLoss);
+                const card = document.getElementById('profitCard');
+                card.style.borderColor = data.isProfitable ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
+                document.getElementById('plProfit').style.color = data.isProfitable ? '#10b981' : '#ef4444';
+                document.getElementById('profitLossResult').style.display = 'block';
+            } catch (e) { showToast('Failed to generate report: ' + e.message, 'error'); }
+        }
+
+        async function buildCharts() {
+            const farmId = getFarmId();
+            try {
+                const [expenses, crops] = await Promise.all([
+                    apiGet(`/api/expenses/farm/${farmId}`),
+                    apiGet(`/api/crops/farm/${farmId}`)
+                ]);
+
+                // Expense category chart
+                const catTotals = {};
+                expenses.forEach(e => { catTotals[e.category] = (catTotals[e.category] || 0) + (e.amount || 0); });
+                new Chart(document.getElementById('expCatChart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(catTotals),
+                        datasets: [{
+                            data: Object.values(catTotals),
+                            backgroundColor: ['rgba(26,122,74,0.8)', 'rgba(245,158,11,0.8)', 'rgba(59,130,246,0.8)', 'rgba(239,68,68,0.8)', 'rgba(16,185,129,0.8)', 'rgba(139,92,246,0.8)'],
+                            borderColor: '#161b22', borderWidth: 3
+                        }]
+                    },
+                    options: { plugins: { legend: { labels: { color: '#e6edf3', font: { family: 'Inter' }, padding: 10 } } }, cutout: '60%' }
+                });
+
+                // Crop status chart
+                const statTotals = {};
+                crops.forEach(c => { statTotals[c.status] = (statTotals[c.status] || 0) + 1; });
+                new Chart(document.getElementById('cropStatusChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(statTotals),
+                        datasets: [{
+                            label: 'Crops', data: Object.values(statTotals),
+                            backgroundColor: 'rgba(26,122,74,0.7)', borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { ticks: { color: '#8b949e' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            y: { ticks: { color: '#8b949e', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                        }
+                    }
+                });
+            } catch (e) { console.log('Chart data not available:', e.message); }
+        }
+
+        function exportToCSV(type) {
+            showToast('Preparing CSV export...', 'success');
+            const farmId = getFarmId();
+            const url = `/api/reports/csv/${type}?farmId=${farmId}`;
+            // Fallback: open in new tab
+            window.open('http://localhost:8080' + url, '_blank');
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        buildCharts();
+        loadProfitLoss();
+    </script>
+</body>
+
+</html>

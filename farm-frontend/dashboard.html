@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard – AgriFarm</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🌾</div>
+                <div class="logo-text">AgriFarm <span>Farm Management System</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item active" data-page="dashboard"><i
+                        class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <div class="nav-section-title">Farm Operations</div>
+                <a href="crops.html" class="nav-item" data-page="crops"><i class="fas fa-seedling"></i> Crop
+                    Management</a>
+                <a href="livestock.html" class="nav-item" data-page="livestock"><i class="fas fa-horse"></i>
+                    Livestock</a>
+                <a href="inventory.html" class="nav-item" data-page="inventory"><i class="fas fa-boxes"></i>
+                    Inventory</a>
+                <div class="nav-section-title">Human Resources</div>
+                <a href="workers.html" class="nav-item" data-page="workers"><i class="fas fa-users"></i> Workers</a>
+                <a href="tasks.html" class="nav-item" data-page="tasks"><i class="fas fa-tasks"></i> Tasks</a>
+                <div class="nav-section-title">Finance</div>
+                <a href="expenses.html" class="nav-item" data-page="expenses"><i class="fas fa-wallet"></i> Expenses &
+                    Sales</a>
+                <a href="reports.html" class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i> Reports</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="name" id="user-name">Admin</div>
+                        <div class="role" id="user-role">ADMIN</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color:var(--text-muted);font-size:14px;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title">Dashboard <span>Overview</span></div>
+                <div class="header-actions">
+                    <div class="header-btn" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge-dot" id="notifDot" style="display:none;"></span>
+                    </div>
+                    <div class="header-btn" title="Refresh" onclick="loadDashboard()">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <!-- Low stock alert -->
+                <div id="lowStockAlert" class="low-stock-alert-bar" style="display:none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="lowStockMsg">Some inventory items are below minimum stock levels!</span>
+                    <a href="inventory.html"
+                        style="margin-left:auto;color:var(--danger);font-weight:600;font-size:12px;">View →</a>
+                </div>
+
+                <!-- Stats cards -->
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card" style="--card-color:#1a7a4a;">
+                        <div class="stat-info">
+                            <div class="stat-label">Active Crops</div>
+                            <div class="stat-value" id="activeCrops">—</div>
+                            <div class="stat-change">🌱 Growing</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:26,122,74;"><i class="fas fa-seedling"
+                                style="color:#1a7a4a;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#3b82f6;">
+                        <div class="stat-info">
+                            <div class="stat-label">Livestock Count</div>
+                            <div class="stat-value" id="livestockCount">—</div>
+                            <div class="stat-change">🐄 On Farm</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:59,130,246;"><i class="fas fa-horse"
+                                style="color:#3b82f6;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#f59e0b;">
+                        <div class="stat-info">
+                            <div class="stat-label">Pending Tasks</div>
+                            <div class="stat-value" id="pendingTasks">—</div>
+                            <div class="stat-change">⏳ To Do</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:245,158,11;"><i class="fas fa-tasks"
+                                style="color:#f59e0b;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#10b981;">
+                        <div class="stat-info">
+                            <div class="stat-label">Monthly Revenue</div>
+                            <div class="stat-value" id="monthlyRevenue">—</div>
+                            <div class="stat-change" id="revenueChange">This month</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:16,185,129;"><i class="fas fa-rupee-sign"
+                                style="color:#10b981;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#ef4444;">
+                        <div class="stat-info">
+                            <div class="stat-label">Monthly Expenses</div>
+                            <div class="stat-value" id="monthlyExpenses">—</div>
+                            <div class="stat-change negative">This month</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:239,68,68;"><i class="fas fa-money-bill-wave"
+                                style="color:#ef4444;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#8b5cf6;">
+                        <div class="stat-info">
+                            <div class="stat-label">Total Workers</div>
+                            <div class="stat-value" id="totalWorkers">—</div>
+                            <div class="stat-change">👷 Active</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:139,92,246;"><i class="fas fa-users"
+                                style="color:#8b5cf6;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#06b6d4;">
+                        <div class="stat-info">
+                            <div class="stat-label">Inventory Items</div>
+                            <div class="stat-value" id="inventoryItems">—</div>
+                            <div class="stat-change" id="lowStockCount">📦 In Stock</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:6,182,212;"><i class="fas fa-boxes"
+                                style="color:#06b6d4;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#ec4899;">
+                        <div class="stat-info">
+                            <div class="stat-label">Net Profit</div>
+                            <div class="stat-value" id="monthlyProfit">—</div>
+                            <div class="stat-change" id="profitStatus">This month</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:236,72,153;"><i class="fas fa-chart-line"
+                                style="color:#ec4899;"></i></div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-card-title">Revenue vs Expenses (6 Months)
+                            <span style="font-size:12px;color:var(--text-muted);font-weight:400;">Monthly
+                                overview</span>
+                        </div>
+                        <canvas id="revenueChart" height="100"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-card-title">Task Status</div>
+                        <canvas id="taskChart" height="160"></canvas>
+                    </div>
+                </div>
+
+                <!-- Quick links -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+                    <a href="crops.html" class="stat-card"
+                        style="--card-color:#1a7a4a;flex-direction:column;align-items:flex-start;gap:10px;text-decoration:none;">
+                        <i class="fas fa-seedling" style="color:#1a7a4a;font-size:24px;"></i>
+                        <div>
+                            <div style="font-weight:700;">Manage Crops</div>
+                            <div style="font-size:12px;color:var(--text-secondary);">Add, edit, track</div>
+                        </div>
+                    </a>
+                    <a href="livestock.html" class="stat-card"
+                        style="--card-color:#3b82f6;flex-direction:column;align-items:flex-start;gap:10px;text-decoration:none;">
+                        <i class="fas fa-horse" style="color:#3b82f6;font-size:24px;"></i>
+                        <div>
+                            <div style="font-weight:700;">Livestock</div>
+                            <div style="font-size:12px;color:var(--text-secondary);">Health & records</div>
+                        </div>
+                    </a>
+                    <a href="workers.html" class="stat-card"
+                        style="--card-color:#8b5cf6;flex-direction:column;align-items:flex-start;gap:10px;text-decoration:none;">
+                        <i class="fas fa-users" style="color:#8b5cf6;font-size:24px;"></i>
+                        <div>
+                            <div style="font-weight:700;">Workers</div>
+                            <div style="font-size:12px;color:var(--text-secondary);">Attendance & pay</div>
+                        </div>
+                    </a>
+                    <a href="expenses.html" class="stat-card"
+                        style="--card-color:#10b981;flex-direction:column;align-items:flex-start;gap:10px;text-decoration:none;">
+                        <i class="fas fa-wallet" style="color:#10b981;font-size:24px;"></i>
+                        <div>
+                            <div style="font-weight:700;">Finances</div>
+                            <div style="font-size:12px;color:var(--text-secondary);">Expenses & sales</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/mobile.js"></script>
+<script src="js/auth.js"></script>
+    <script>
+        requireAuth();
+        populateUserInfo();
+        let revenueChart, taskChart;
+
+        async function loadDashboard() {
+            const farmId = getFarmId();
+            try {
+                const data = await apiGet(`/api/dashboard/${farmId}`);
+
+                document.getElementById('activeCrops').textContent = data.activeCrops ?? 0;
+                document.getElementById('livestockCount').textContent = data.livestockCount ?? 0;
+                document.getElementById('pendingTasks').textContent = data.pendingTasks ?? 0;
+                document.getElementById('monthlyRevenue').textContent = formatCurrency(data.monthlyRevenue);
+                document.getElementById('monthlyExpenses').textContent = formatCurrency(data.monthlyExpenses);
+                document.getElementById('totalWorkers').textContent = data.totalWorkers ?? 0;
+                document.getElementById('inventoryItems').textContent = data.inventoryItems ?? 0;
+                document.getElementById('monthlyProfit').textContent = formatCurrency(data.monthlyProfit);
+
+                if (data.lowStockItems > 0) {
+                    document.getElementById('lowStockAlert').style.display = 'flex';
+                    document.getElementById('lowStockMsg').textContent = `⚠ ${data.lowStockItems} inventory item(s) are below minimum stock level!`;
+                    document.getElementById('lowStockCount').textContent = `🔴 ${data.lowStockItems} low stock alerts`;
+                    document.getElementById('notifDot').style.display = 'block';
+                }
+
+                const profit = data.monthlyProfit ?? 0;
+                const profitEl = document.getElementById('profitStatus');
+                profitEl.textContent = profit >= 0 ? '📈 Profitable' : '📉 Loss';
+                profitEl.className = profit >= 0 ? 'stat-change' : 'stat-change negative';
+
+                // Task chart
+                buildTaskChart(data.pendingTasks ?? 0, data.inProgressTasks ?? 0, data.completedTasks ?? 0);
+
+            } catch (err) {
+                console.warn('Dashboard error:', err.message);
+                // Show zeros if API not available yet
+                ['activeCrops', 'livestockCount', 'pendingTasks', 'totalWorkers', 'inventoryItems'].forEach(id => {
+                    if (document.getElementById(id).textContent === '—') document.getElementById(id).textContent = 0;
+                });
+                ['monthlyRevenue', 'monthlyExpenses', 'monthlyProfit'].forEach(id => {
+                    if (document.getElementById(id).textContent === '—') document.getElementById(id).textContent = '₹0';
+                });
+                buildTaskChart(0, 0, 0);
+            }
+            buildRevenueChart();
+        }
+
+        function buildRevenueChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            if (revenueChart) revenueChart.destroy();
+            const months = ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
+            revenueChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        { label: 'Revenue', data: [85000, 92000, 78000, 105000, 96000, 0], backgroundColor: 'rgba(26,122,74,0.7)', borderRadius: 6 },
+                        { label: 'Expenses', data: [62000, 71000, 58000, 88000, 74000, 0], backgroundColor: 'rgba(239,68,68,0.5)', borderRadius: 6 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#e6edf3', font: { family: 'Inter' } } } },
+                    scales: {
+                        x: { ticks: { color: '#8b949e' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#8b949e', callback: v => '₹' + v.toLocaleString() }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        function buildTaskChart(pending, inProgress, completed) {
+            const ctx = document.getElementById('taskChart').getContext('2d');
+            if (taskChart) taskChart.destroy();
+            taskChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'In Progress', 'Completed'],
+                    datasets: [{
+                        data: [pending, inProgress, completed],
+                        backgroundColor: ['rgba(245,158,11,0.8)', 'rgba(59,130,246,0.8)', 'rgba(16,185,129,0.8)'],
+                        borderColor: '#161b22', borderWidth: 3
+                    }]
+                },
+                options: {
+                    plugins: { legend: { labels: { color: '#e6edf3', font: { family: 'Inter' }, padding: 12 } } },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        loadDashboard();
+    </script>
+</body>
+
+</html>

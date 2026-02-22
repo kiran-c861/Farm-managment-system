@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login – AgriFarm Management</title>
+  <meta name="description" content="Login to the Agriculture Farm Management System"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+<div class="login-bg"></div>
+
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon-lg">🌾</div>
+      <h1>AgriFarm</h1>
+      <p>Agriculture Farm Management System</p>
+    </div>
+
+    <div id="login-form-section">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" id="username" class="form-control" placeholder="Enter your username" autocomplete="username"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="password" class="form-control" placeholder="Enter your password" autocomplete="current-password"/>
+      </div>
+      <div id="login-error" style="color:#ef4444;font-size:13px;margin-bottom:12px;display:none;"></div>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">
+        <i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>Sign In
+      </button>
+      <div class="login-divider">or</div>
+      <p style="text-align:center;font-size:13px;color:var(--text-secondary)">
+        Don't have an account? <a href="register.html" style="color:var(--primary-light);font-weight:600;">Register here</a>
+      </p>
+    </div>
+
+    <!-- Quick hint -->
+    <div style="margin-top:24px;background:rgba(26,122,74,0.08);border:1px solid rgba(26,122,74,0.2);border-radius:8px;padding:12px 14px;">
+      <p style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;"><i class="fas fa-info-circle" style="color:var(--primary-light);margin-right:6px;"></i>Default admin credentials:</p>
+      <p style="font-size:12px;color:var(--text-primary);">Username: <strong>admin</strong> &nbsp;|&nbsp; Password: <strong>admin123</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  // Redirect if already logged in
+  if (localStorage.getItem('token')) {
+    window.location.href = 'dashboard.html';
+  }
+
+  async function doLogin() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const errEl = document.getElementById('login-error');
+    const btn = document.getElementById('loginBtn');
+
+    if (!username || !password) {
+      errEl.textContent = 'Please enter username and password.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Signing in...';
+    btn.disabled = true;
+    errEl.style.display = 'none';
+
+    try {
+      const data = await apiPost('/api/auth/login', { username, password });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify({ username: data.username, role: data.role, fullName: data.fullName, userId: data.userId }));
+      // Use farm ID 1 as default (can be made dynamic later)
+      localStorage.setItem('farmId', '1');
+      showToast('Welcome back, ' + data.fullName + '!', 'success');
+      setTimeout(() => window.location.href = 'dashboard.html', 800);
+    } catch (err) {
+      errEl.textContent = err.message || 'Login failed. Please check your credentials.';
+      errEl.style.display = 'block';
+      btn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>Sign In';
+      btn.disabled = false;
+    }
+  }
+
+  // Allow Enter key to login
+  document.getElementById('password').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') doLogin();
+  });
+</script>
+</body>
+</html>

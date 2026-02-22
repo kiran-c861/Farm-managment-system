@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register – AgriFarm Management</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+    <div class="login-bg"></div>
+    <div class="login-page">
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="logo-icon-lg">🌾</div>
+                <h1>Create Account</h1>
+                <p>Join AgriFarm Management System</p>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="fullName" class="form-control" placeholder="e.g. Ravi Kumar" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Unique username" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" placeholder="your@email.com" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Minimum 6 characters" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Role</label>
+                <select id="role" class="form-control">
+                    <option value="WORKER">Worker</option>
+                    <option value="MANAGER">Farm Manager</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+            </div>
+            <div id="reg-error" style="color:#ef4444;font-size:13px;margin-bottom:12px;display:none;"></div>
+            <button class="login-btn" onclick="doRegister()">
+                <i class="fas fa-user-plus" style="margin-right:8px;"></i>Create Account
+            </button>
+            <p style="text-align:center;font-size:13px;color:var(--text-secondary);margin-top:16px;">
+                Already have an account? <a href="index.html" style="color:var(--primary-light);font-weight:600;">Sign
+                    in</a>
+            </p>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        async function doRegister() {
+            const errEl = document.getElementById('reg-error');
+            const body = {
+                fullName: document.getElementById('fullName').value.trim(),
+                username: document.getElementById('username').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value
+            };
+            if (!body.username || !body.password || !body.email) {
+                errEl.textContent = 'Please fill in all required fields.';
+                errEl.style.display = 'block';
+                return;
+            }
+            try {
+                const data = await apiPost('/api/auth/register', body);
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify({ username: data.username, role: data.role, fullName: data.fullName, userId: data.userId }));
+                localStorage.setItem('farmId', '1');
+                showToast('Account created successfully!', 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 800);
+            } catch (err) {
+                errEl.textContent = err.message || 'Registration failed.';
+                errEl.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+
+</html>

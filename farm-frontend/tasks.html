@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tasks – AgriFarm</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🌾</div>
+                <div class="logo-text">AgriFarm <span>Farm Management System</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <div class="nav-section-title">Farm Operations</div>
+                <a href="crops.html" class="nav-item"><i class="fas fa-seedling"></i> Crop Management</a>
+                <a href="livestock.html" class="nav-item"><i class="fas fa-horse"></i> Livestock</a>
+                <a href="inventory.html" class="nav-item"><i class="fas fa-boxes"></i> Inventory</a>
+                <div class="nav-section-title">Human Resources</div>
+                <a href="workers.html" class="nav-item"><i class="fas fa-users"></i> Workers</a>
+                <a href="tasks.html" class="nav-item active"><i class="fas fa-tasks"></i> Tasks</a>
+                <div class="nav-section-title">Finance</div>
+                <a href="expenses.html" class="nav-item"><i class="fas fa-wallet"></i> Expenses & Sales</a>
+                <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="name" id="user-name">Admin</div>
+                        <div class="role" id="user-role">ADMIN</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color:var(--text-muted);font-size:14px;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title">Task Management <span>Farm Tasks Board</span></div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> New Task</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <!-- Kanban-style status columns stats -->
+                <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+                    <div class="stat-card" style="--card-color:#f59e0b;">
+                        <div class="stat-info">
+                            <div class="stat-label">Pending</div>
+                            <div class="stat-value" id="countPending">—</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:245,158,11;"><i class="fas fa-clock"
+                                style="color:#f59e0b;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#3b82f6;">
+                        <div class="stat-info">
+                            <div class="stat-label">In Progress</div>
+                            <div class="stat-value" id="countInProgress">—</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:59,130,246;"><i class="fas fa-spinner"
+                                style="color:#3b82f6;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#10b981;">
+                        <div class="stat-info">
+                            <div class="stat-label">Completed</div>
+                            <div class="stat-value" id="countCompleted">—</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:16,185,129;"><i class="fas fa-check-circle"
+                                style="color:#10b981;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#ef4444;">
+                        <div class="stat-info">
+                            <div class="stat-label">Cancelled</div>
+                            <div class="stat-value" id="countCancelled">—</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:239,68,68;"><i class="fas fa-times-circle"
+                                style="color:#ef4444;"></i></div>
+                    </div>
+                </div>
+
+                <div class="actions-bar">
+                    <div class="search-bar-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-bar" id="searchInput" placeholder="Search tasks..."
+                            oninput="filterTable()" />
+                    </div>
+                    <select class="form-control" id="statusFilter" style="width:160px;" onchange="filterTable()">
+                        <option value="">All Status</option>
+                        <option>PENDING</option>
+                        <option>IN_PROGRESS</option>
+                        <option>COMPLETED</option>
+                        <option>CANCELLED</option>
+                    </select>
+                    <select class="form-control" id="priorityFilter" style="width:130px;" onchange="filterTable()">
+                        <option value="">All Priority</option>
+                        <option>LOW</option>
+                        <option>MEDIUM</option>
+                        <option>HIGH</option>
+                        <option>URGENT</option>
+                    </select>
+                </div>
+
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title"><i class="fas fa-tasks"
+                                style="color:var(--primary);margin-right:8px;"></i>All Tasks</div>
+                        <span id="taskCount" style="color:var(--text-muted);font-size:13px;">Loading...</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Title</th>
+                                    <th>Priority</th>
+                                    <th>Assigned To</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="taskTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="emptyState" class="empty-state" style="display:none;">
+                        <i class="fas fa-tasks"></i>
+                        <h3>No tasks yet</h3>
+                        <p>Create tasks and assign them to your workers.</p>
+                        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> New
+                            Task</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Create Task</div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="taskId" />
+                <div class="form-group"><label class="form-label">Task Title *</label>
+                    <input type="text" id="taskTitle" class="form-control"
+                        placeholder="e.g. Apply fertilizer to Field A" />
+                </div>
+                <div class="form-group"><label class="form-label">Description</label>
+                    <textarea id="taskDesc" class="form-control" rows="3"
+                        placeholder="Detailed description..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Status</label>
+                        <select id="taskStatus" class="form-control">
+                            <option>PENDING</option>
+                            <option>IN_PROGRESS</option>
+                            <option>COMPLETED</option>
+                            <option>CANCELLED</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Priority</label>
+                        <select id="taskPriority" class="form-control">
+                            <option>LOW</option>
+                            <option value="MEDIUM" selected>MEDIUM</option>
+                            <option>HIGH</option>
+                            <option>URGENT</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Due Date</label>
+                    <input type="date" id="taskDue" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveTask()"><i class="fas fa-save"></i> Save Task</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/api.js"></script>
+    <script src="js/mobile.js"></script>
+<script src="js/auth.js"></script>
+    <script>
+        requireAuth(); populateUserInfo();
+        let tasks = [];
+
+        const statusCol = { PENDING: 'badge-warning', IN_PROGRESS: 'badge-info', COMPLETED: 'badge-success', CANCELLED: 'badge-muted' };
+        const priorityCol = { LOW: 'badge-muted', MEDIUM: 'badge-primary', HIGH: 'badge-warning', URGENT: 'badge-danger' };
+
+        async function loadTasks() {
+            try {
+                tasks = await apiGet(`/api/tasks/farm/${getFarmId()}`);
+                renderStats();
+                renderTable(tasks);
+            } catch (e) { showToast('Failed to load tasks: ' + e.message, 'error'); }
+        }
+
+        function renderStats() {
+            document.getElementById('countPending').textContent = tasks.filter(t => t.status === 'PENDING').length;
+            document.getElementById('countInProgress').textContent = tasks.filter(t => t.status === 'IN_PROGRESS').length;
+            document.getElementById('countCompleted').textContent = tasks.filter(t => t.status === 'COMPLETED').length;
+            document.getElementById('countCancelled').textContent = tasks.filter(t => t.status === 'CANCELLED').length;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('taskTable');
+            document.getElementById('taskCount').textContent = data.length + ' tasks';
+            if (data.length === 0) { tbody.innerHTML = ''; document.getElementById('emptyState').style.display = 'block'; return; }
+            document.getElementById('emptyState').style.display = 'none';
+            const now = new Date();
+            tbody.innerHTML = data.map((t, i) => {
+                const overdue = t.dueDate && new Date(t.dueDate) < now && t.status !== 'COMPLETED';
+                return `<tr>
+        <td style="color:var(--text-muted);">${i + 1}</td>
+        <td><strong>${t.title}</strong>${t.description ? `<div style="font-size:12px;color:var(--text-muted);margin-top:3px;">${t.description.substring(0, 50)}${t.description.length > 50 ? '...' : ''}</div>` : ''}</td>
+        <td><span class="badge ${priorityCol[t.priority] || 'badge-muted'}">${t.priority || 'MEDIUM'}</span></td>
+        <td>${t.assignedTo ? t.assignedTo.name : 'Unassigned'}</td>
+        <td style="color:${overdue ? '#ef4444' : 'inherit'}">${formatDate(t.dueDate)}${overdue ? ' ⚠' : ''}</td>
+        <td><span class="badge ${statusCol[t.status] || 'badge-muted'}">${t.status}</span></td>
+        <td>
+          ${t.status !== 'COMPLETED' ? `<button class="btn btn-outline btn-sm" onclick="markCompleted(${t.id})" title="Mark Complete"><i class="fas fa-check"></i></button> ` : ''}
+          <button class="btn btn-outline btn-sm btn-icon" onclick="editTask(${t.id})"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteTask(${t.id})" style="margin-left:6px;"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`;
+            }).join('');
+        }
+
+        function filterTable() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const s = document.getElementById('statusFilter').value;
+            const p = document.getElementById('priorityFilter').value;
+            renderTable(tasks.filter(t =>
+                (!q || t.title.toLowerCase().includes(q)) &&
+                (!s || t.status === s) &&
+                (!p || t.priority === p)
+            ));
+        }
+
+        function openModal() {
+            document.getElementById('modalTitle').textContent = 'Create Task';
+            document.getElementById('taskId').value = '';
+            ['taskTitle', 'taskDesc', 'taskDue'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('taskStatus').value = 'PENDING';
+            document.getElementById('taskPriority').value = 'MEDIUM';
+            document.getElementById('taskModal').classList.add('active');
+        }
+        function closeModal() { document.getElementById('taskModal').classList.remove('active'); }
+
+        function editTask(id) {
+            const t = tasks.find(x => x.id === id);
+            if (!t) return;
+            document.getElementById('modalTitle').textContent = 'Edit Task';
+            document.getElementById('taskId').value = t.id;
+            document.getElementById('taskTitle').value = t.title || '';
+            document.getElementById('taskDesc').value = t.description || '';
+            document.getElementById('taskStatus').value = t.status || 'PENDING';
+            document.getElementById('taskPriority').value = t.priority || 'MEDIUM';
+            document.getElementById('taskDue').value = t.dueDate || '';
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        async function markCompleted(id) {
+            const t = tasks.find(x => x.id === id);
+            if (!t) return;
+            const body = { ...t, status: 'COMPLETED' };
+            try { await apiPut(`/api/tasks/${id}`, body); showToast('Task marked complete! ✓', 'success'); loadTasks(); }
+            catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function saveTask() {
+            const id = document.getElementById('taskId').value;
+            const existing = id ? tasks.find(x => x.id == id) : null;
+            const body = {
+                title: document.getElementById('taskTitle').value.trim(),
+                description: document.getElementById('taskDesc').value.trim(),
+                status: document.getElementById('taskStatus').value,
+                priority: document.getElementById('taskPriority').value,
+                dueDate: document.getElementById('taskDue').value || null,
+                assignedTo: existing?.assignedTo || null
+            };
+            if (!body.title) { showToast('Task title is required', 'error'); return; }
+            try {
+                if (id) await apiPut(`/api/tasks/${id}`, body);
+                else await apiPost(`/api/tasks/farm/${getFarmId()}`, body);
+                showToast(id ? 'Task updated!' : 'Task created!', 'success');
+                closeModal(); loadTasks();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function deleteTask(id) {
+            confirmDelete('Delete this task?', async () => {
+                try { await apiDelete(`/api/tasks/${id}`); showToast('Task deleted.', 'success'); loadTasks(); }
+                catch (e) { showToast(e.message, 'error'); }
+            });
+        }
+
+        loadTasks();
+    </script>
+</body>
+
+</html>

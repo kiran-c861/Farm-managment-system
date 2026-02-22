@@ -1,0 +1,34 @@
+# =============================================
+# Agriculture Farm Management - .gitignore
+# =============================================
+
+# Maven build output
+farm-backend/target/
+farm-backend/.mvn/wrapper/maven-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.project
+*.classpath
+*.settings/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment - DO NOT commit real credentials
+# (application.properties is included but with placeholder password)
+
+# Node (if any)
+node_modules/
+
+# C:\FarmApp (local run copy - not needed in repo)
+C:/FarmApp/

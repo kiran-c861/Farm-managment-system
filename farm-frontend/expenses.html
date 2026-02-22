@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expenses & Sales – AgriFarm</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🌾</div>
+                <div class="logo-text">AgriFarm <span>Farm Management System</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <div class="nav-section-title">Farm Operations</div>
+                <a href="crops.html" class="nav-item"><i class="fas fa-seedling"></i> Crop Management</a>
+                <a href="livestock.html" class="nav-item"><i class="fas fa-horse"></i> Livestock</a>
+                <a href="inventory.html" class="nav-item"><i class="fas fa-boxes"></i> Inventory</a>
+                <div class="nav-section-title">Human Resources</div>
+                <a href="workers.html" class="nav-item"><i class="fas fa-users"></i> Workers</a>
+                <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i> Tasks</a>
+                <div class="nav-section-title">Finance</div>
+                <a href="expenses.html" class="nav-item active"><i class="fas fa-wallet"></i> Expenses & Sales</a>
+                <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="name" id="user-name">Admin</div>
+                        <div class="role" id="user-role">ADMIN</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color:var(--text-muted);font-size:14px;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title">Expenses & Sales <span>Financial Tracking</span></div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="openExpenseModal()"><i class="fas fa-minus-circle"></i> Add
+                        Expense</button>
+                    <button class="btn btn-primary" onclick="openSaleModal()"><i class="fas fa-plus-circle"></i> Record
+                        Sale</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <!-- Summary Cards -->
+                <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+                    <div class="stat-card" style="--card-color:#ef4444;">
+                        <div class="stat-info">
+                            <div class="stat-label">Total Expenses</div>
+                            <div class="stat-value" id="totalExp">₹0</div>
+                            <div class="stat-change negative">All time</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:239,68,68;"><i class="fas fa-arrow-down"
+                                style="color:#ef4444;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#10b981;">
+                        <div class="stat-info">
+                            <div class="stat-label">Total Revenue</div>
+                            <div class="stat-value" id="totalRev">₹0</div>
+                            <div class="stat-change">All time</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:16,185,129;"><i class="fas fa-arrow-up"
+                                style="color:#10b981;"></i></div>
+                    </div>
+                    <div class="stat-card" style="--card-color:#8b5cf6;">
+                        <div class="stat-info">
+                            <div class="stat-label">Net Profit/Loss</div>
+                            <div class="stat-value" id="netProfit">₹0</div>
+                            <div class="stat-change" id="profitLabel">All time</div>
+                        </div>
+                        <div class="stat-icon" style="--icon-rgb:139,92,246;"><i class="fas fa-balance-scale"
+                                style="color:#8b5cf6;"></i></div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div
+                    style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--dark-border);padding-bottom:12px;">
+                    <button class="btn btn-primary" id="tab-expenses" onclick="showTab('expenses')"><i
+                            class="fas fa-minus-circle"></i> Expenses</button>
+                    <button class="btn btn-outline" id="tab-sales" onclick="showTab('sales')"><i
+                            class="fas fa-plus-circle"></i> Sales</button>
+                </div>
+
+                <!-- Expenses Table -->
+                <div id="expensesSection">
+                    <div class="data-card">
+                        <div class="data-card-header">
+                            <div class="data-card-title"><i class="fas fa-file-invoice-dollar"
+                                    style="color:#ef4444;margin-right:8px;"></i>Expense Records</div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Payment</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenseTable"></tbody>
+                            </table>
+                        </div>
+                        <div id="expEmpty" class="empty-state" style="display:none;">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <h3>No expenses recorded</h3>
+                            <p>Start tracking your farm expenditures.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Table -->
+                <div id="salesSection" style="display:none;">
+                    <div class="data-card">
+                        <div class="data-card-header">
+                            <div class="data-card-title"><i class="fas fa-handshake"
+                                    style="color:#10b981;margin-right:8px;"></i>Sales Records</div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Product</th>
+                                        <th>Type</th>
+                                        <th>Qty</th>
+                                        <th>Unit Price</th>
+                                        <th>Total</th>
+                                        <th>Buyer</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="saleTable"></tbody>
+                            </table>
+                        </div>
+                        <div id="saleEmpty" class="empty-state" style="display:none;">
+                            <i class="fas fa-handshake"></i>
+                            <h3>No sales recorded</h3>
+                            <p>Start recording your crop and livestock sales.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div class="modal-overlay" id="expenseModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="expModalTitle">Add Expense</div><button class="modal-close"
+                    onclick="closeMod('expenseModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="expId" />
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Category *</label>
+                        <select id="expCat" class="form-control">
+                            <option>Seeds</option>
+                            <option>Fertilizers</option>
+                            <option>Labor</option>
+                            <option>Equipment</option>
+                            <option>Fuel</option>
+                            <option>Veterinary</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Amount (₹) *</label>
+                        <input type="number" id="expAmount" class="form-control" placeholder="0" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Date</label>
+                        <input type="date" id="expDate" class="form-control" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Payment Method</label>
+                        <select id="expPayment" class="form-control">
+                            <option>Cash</option>
+                            <option>Bank Transfer</option>
+                            <option>Credit</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Description</label>
+                    <textarea id="expDesc" class="form-control" rows="2" placeholder="Details..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeMod('expenseModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveExpense()"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sale Modal -->
+    <div class="modal-overlay" id="saleModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">Record Sale</div><button class="modal-close"
+                    onclick="closeMod('saleModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Product *</label>
+                        <input type="text" id="saleProduct" class="form-control" placeholder="e.g. Wheat, Milk" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Product Type</label>
+                        <select id="saleType" class="form-control">
+                            <option>CROP</option>
+                            <option>LIVESTOCK</option>
+                            <option>OTHER</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Quantity</label>
+                        <input type="number" id="saleQty" class="form-control" placeholder="0" oninput="calcTotal()" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Unit</label>
+                        <input type="text" id="saleUnit" class="form-control" placeholder="kg, liters, pieces" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Unit Price (₹)</label>
+                        <input type="number" id="saleUnitPrice" class="form-control" placeholder="0"
+                            oninput="calcTotal()" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Total Amount (₹)</label>
+                        <input type="number" id="saleTotal" class="form-control" placeholder="Auto-calculated" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Buyer Name</label>
+                        <input type="text" id="saleBuyer" class="form-control" placeholder="Buyer / Customer" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Sale Date</label>
+                        <input type="date" id="saleDate" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeMod('saleModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSale()"><i class="fas fa-save"></i> Record Sale</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/api.js"></script>
+    <script src="js/mobile.js"></script>
+<script src="js/auth.js"></script>
+    <script>
+        requireAuth(); populateUserInfo();
+        let expenses = [], sales = [];
+
+        async function loadAll() {
+            const farmId = getFarmId();
+            try {
+                [expenses, sales] = await Promise.all([
+                    apiGet(`/api/expenses/farm/${farmId}`),
+                    apiGet(`/api/expenses/farm/${farmId}/sales`)
+                ]);
+                updateSummary();
+                renderExpenses(expenses);
+                renderSales(sales);
+            } catch (e) { showToast('Failed to load data: ' + e.message, 'error'); }
+        }
+
+        function updateSummary() {
+            const totExp = expenses.reduce((s, x) => s + (x.amount || 0), 0);
+            const totRev = sales.reduce((s, x) => s + (x.totalAmount || 0), 0);
+            const net = totRev - totExp;
+            document.getElementById('totalExp').textContent = formatCurrency(totExp);
+            document.getElementById('totalRev').textContent = formatCurrency(totRev);
+            document.getElementById('netProfit').textContent = formatCurrency(net);
+            const lbl = document.getElementById('profitLabel');
+            lbl.textContent = net >= 0 ? '📈 Profitable' : '📉 Net Loss';
+            lbl.className = net >= 0 ? 'stat-change' : 'stat-change negative';
+        }
+
+        function renderExpenses(data) {
+            const tbody = document.getElementById('expenseTable');
+            if (data.length === 0) { tbody.innerHTML = ''; document.getElementById('expEmpty').style.display = 'block'; return; }
+            document.getElementById('expEmpty').style.display = 'none';
+            tbody.innerHTML = data.map((e, i) => `<tr>
+      <td style="color:var(--text-muted);">${i + 1}</td>
+      <td><span class="badge badge-warning">${e.category}</span></td>
+      <td><strong style="color:#ef4444;">${formatCurrency(e.amount)}</strong></td>
+      <td>${formatDate(e.expenseDate)}</td>
+      <td>${e.description || '—'}</td>
+      <td>${e.paymentMethod || 'Cash'}</td>
+      <td>
+        <button class="btn btn-outline btn-sm btn-icon" onclick="editExpense(${e.id})"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="delExpense(${e.id})" style="margin-left:6px;"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`).join('');
+        }
+
+        function renderSales(data) {
+            const tbody = document.getElementById('saleTable');
+            if (data.length === 0) { tbody.innerHTML = ''; document.getElementById('saleEmpty').style.display = 'block'; return; }
+            document.getElementById('saleEmpty').style.display = 'none';
+            tbody.innerHTML = data.map((s, i) => `<tr>
+      <td style="color:var(--text-muted);">${i + 1}</td>
+      <td><strong>${s.product}</strong></td>
+      <td><span class="badge badge-primary">${s.productType || 'CROP'}</span></td>
+      <td>${s.quantity || 0} ${s.unit || ''}</td>
+      <td>${formatCurrency(s.unitPrice)}</td>
+      <td><strong style="color:#10b981;">${formatCurrency(s.totalAmount)}</strong></td>
+      <td>${s.buyerName || '—'}</td>
+      <td>${formatDate(s.saleDate)}</td>
+      <td><button class="btn btn-danger btn-sm btn-icon" onclick="delSale(${s.id})"><i class="fas fa-trash"></i></button></td>
+    </tr>`).join('');
+        }
+
+        function showTab(tab) {
+            document.getElementById('expensesSection').style.display = tab === 'expenses' ? 'block' : 'none';
+            document.getElementById('salesSection').style.display = tab === 'sales' ? 'block' : 'none';
+            document.getElementById('tab-expenses').className = tab === 'expenses' ? 'btn btn-primary' : 'btn btn-outline';
+            document.getElementById('tab-sales').className = tab === 'sales' ? 'btn btn-primary' : 'btn btn-outline';
+        }
+
+        function openExpenseModal() {
+            document.getElementById('expId').value = '';
+            document.getElementById('expModalTitle').textContent = 'Add Expense';
+            ['expAmount', 'expDesc'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('expenseModal').classList.add('active');
+        }
+        function openSaleModal() {
+            ['saleProduct', 'saleQty', 'saleUnit', 'saleUnitPrice', 'saleTotal', 'saleBuyer'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('saleDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('saleModal').classList.add('active');
+        }
+        function closeMod(id) { document.getElementById(id).classList.remove('active'); }
+
+        function editExpense(id) {
+            const e = expenses.find(x => x.id === id);
+            if (!e) return;
+            document.getElementById('expModalTitle').textContent = 'Edit Expense';
+            document.getElementById('expId').value = e.id;
+            document.getElementById('expCat').value = e.category || 'Seeds';
+            document.getElementById('expAmount').value = e.amount || '';
+            document.getElementById('expDate').value = e.expenseDate || '';
+            document.getElementById('expPayment').value = e.paymentMethod || 'Cash';
+            document.getElementById('expDesc').value = e.description || '';
+            document.getElementById('expenseModal').classList.add('active');
+        }
+
+        function calcTotal() {
+            const qty = parseFloat(document.getElementById('saleQty').value) || 0;
+            const price = parseFloat(document.getElementById('saleUnitPrice').value) || 0;
+            document.getElementById('saleTotal').value = (qty * price).toFixed(2);
+        }
+
+        async function saveExpense() {
+            const id = document.getElementById('expId').value;
+            const body = {
+                category: document.getElementById('expCat').value,
+                amount: parseFloat(document.getElementById('expAmount').value) || 0,
+                expenseDate: document.getElementById('expDate').value || null,
+                paymentMethod: document.getElementById('expPayment').value,
+                description: document.getElementById('expDesc').value.trim()
+            };
+            if (!body.amount) { showToast('Amount is required', 'error'); return; }
+            try {
+                if (id) await apiPut(`/api/expenses/${id}`, body);
+                else await apiPost(`/api/expenses/farm/${getFarmId()}`, body);
+                showToast('Expense saved!', 'success');
+                closeMod('expenseModal'); loadAll();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function saveSale() {
+            const qty = parseFloat(document.getElementById('saleQty').value) || 0;
+            const price = parseFloat(document.getElementById('saleUnitPrice').value) || 0;
+            const body = {
+                product: document.getElementById('saleProduct').value.trim(),
+                productType: document.getElementById('saleType').value,
+                quantity: qty, unit: document.getElementById('saleUnit').value.trim(),
+                unitPrice: price, totalAmount: qty * price,
+                buyerName: document.getElementById('saleBuyer').value.trim(),
+                saleDate: document.getElementById('saleDate').value || null
+            };
+            if (!body.product) { showToast('Product name is required', 'error'); return; }
+            try {
+                await apiPost(`/api/expenses/farm/${getFarmId()}/sales`, body);
+                showToast('Sale recorded!', 'success');
+                closeMod('saleModal'); loadAll();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function delExpense(id) {
+            confirmDelete('Delete this expense?', async () => {
+                try { await apiDelete(`/api/expenses/${id}`); showToast('Deleted.', 'success'); loadAll(); }
+                catch (e) { showToast(e.message, 'error'); }
+            });
+        }
+
+        async function delSale(id) {
+            confirmDelete('Delete this sale record?', async () => {
+                try { await apiDelete(`/api/expenses/sales/${id}`); showToast('Deleted.', 'success'); loadAll(); }
+                catch (e) { showToast(e.message, 'error'); }
+            });
+        }
+
+        loadAll();
+    </script>
+</body>
+
+</html>

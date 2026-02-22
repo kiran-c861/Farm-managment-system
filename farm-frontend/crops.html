@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crop Management – AgriFarm</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">🌾</div>
+                <div class="logo-text">AgriFarm <span>Farm Management System</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Overview</div>
+                <a href="dashboard.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <div class="nav-section-title">Farm Operations</div>
+                <a href="crops.html" class="nav-item active"><i class="fas fa-seedling"></i> Crop Management</a>
+                <a href="livestock.html" class="nav-item"><i class="fas fa-horse"></i> Livestock</a>
+                <a href="inventory.html" class="nav-item"><i class="fas fa-boxes"></i> Inventory</a>
+                <div class="nav-section-title">Human Resources</div>
+                <a href="workers.html" class="nav-item"><i class="fas fa-users"></i> Workers</a>
+                <a href="tasks.html" class="nav-item"><i class="fas fa-tasks"></i> Tasks</a>
+                <div class="nav-section-title">Finance</div>
+                <a href="expenses.html" class="nav-item"><i class="fas fa-wallet"></i> Expenses & Sales</a>
+                <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div class="user-details">
+                        <div class="name" id="user-name">Admin</div>
+                        <div class="role" id="user-role">ADMIN</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="color:var(--text-muted);font-size:14px;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title">Crop Management <span>All Crops</span></div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add Crop</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="actions-bar">
+                    <div class="search-bar-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-bar" id="searchInput" placeholder="Search crops..."
+                            oninput="filterTable()" />
+                    </div>
+                    <select class="form-control" id="statusFilter" style="width:160px;" onchange="filterTable()">
+                        <option value="">All Status</option>
+                        <option>SOWING</option>
+                        <option>GROWING</option>
+                        <option>FLOWERING</option>
+                        <option>HARVESTING</option>
+                        <option>HARVESTED</option>
+                        <option>FAILED</option>
+                    </select>
+                </div>
+
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div class="data-card-title"><i class="fas fa-seedling"
+                                style="color:var(--primary);margin-right:8px;"></i>Crop List</div>
+                        <span id="cropCount" style="color:var(--text-muted);font-size:13px;">Loading...</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Sowing Date</th>
+                                    <th>Harvest Date</th>
+                                    <th>Field Location</th>
+                                    <th>Status</th>
+                                    <th>Growth Stage</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cropTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="emptyState" class="empty-state" style="display:none;">
+                        <i class="fas fa-seedling"></i>
+                        <h3>No crops found</h3>
+                        <p>Start by adding your first crop to the farm.</p>
+                        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Add
+                            Crop</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="cropModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Add New Crop</div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="cropId" />
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Crop Name *</label>
+                        <input type="text" id="cropName" class="form-control" placeholder="e.g. Wheat Season 1" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Type</label>
+                        <input type="text" id="cropType" class="form-control" placeholder="e.g. Grain, Vegetable" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Sowing Date</label>
+                        <input type="date" id="sowingDate" class="form-control" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Harvest Date</label>
+                        <input type="date" id="harvestDate" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Field Location</label>
+                    <input type="text" id="fieldLocation" class="form-control" placeholder="e.g. Field A - North" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Status</label>
+                        <select id="cropStatus" class="form-control">
+                            <option>SOWING</option>
+                            <option>GROWING</option>
+                            <option>FLOWERING</option>
+                            <option>HARVESTING</option>
+                            <option>HARVESTED</option>
+                            <option>FAILED</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Growth Stage</label>
+                        <input type="text" id="growthStage" class="form-control" placeholder="e.g. Tillering" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Expected Yield (kg)</label>
+                        <input type="number" id="expectedYield" class="form-control" placeholder="0" />
+                    </div>
+                    <div class="form-group"><label class="form-label">Actual Yield (kg)</label>
+                        <input type="number" id="actualYield" class="form-control" placeholder="0" />
+                    </div>
+                </div>
+                <div class="form-group"><label class="form-label">Notes</label>
+                    <textarea id="cropNotes" class="form-control" rows="2" placeholder="Optional notes..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCrop()"><i class="fas fa-save"></i> Save Crop</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/api.js"></script>
+    <script src="js/mobile.js"></script>
+<script src="js/auth.js"></script>
+    <script>
+        requireAuth(); populateUserInfo();
+        let crops = [];
+
+        const statusColors = {
+            SOWING: 'badge-info', GROWING: 'badge-success', FLOWERING: 'badge-primary',
+            HARVESTING: 'badge-warning', HARVESTED: 'badge-muted', FAILED: 'badge-danger'
+        };
+
+        async function loadCrops() {
+            const farmId = getFarmId();
+            try {
+                crops = await apiGet(`/api/crops/farm/${farmId}`);
+                renderTable(crops);
+            } catch (e) { showToast('Failed to load crops: ' + e.message, 'error'); }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('cropTable');
+            const empty = document.getElementById('emptyState');
+            document.getElementById('cropCount').textContent = data.length + ' crops';
+            if (data.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            tbody.innerHTML = data.map((c, i) => `
+      <tr>
+        <td style="color:var(--text-muted);">${i + 1}</td>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.type || '—'}</td>
+        <td>${formatDate(c.sowingDate)}</td>
+        <td>${formatDate(c.harvestDate)}</td>
+        <td>${c.fieldLocation || '—'}</td>
+        <td><span class="badge ${statusColors[c.status] || 'badge-muted'}">${c.status}</span></td>
+        <td>${c.growthStage || '—'}</td>
+        <td>
+          <button class="btn btn-outline btn-sm btn-icon" onclick="editCrop(${c.id})" title="Edit"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCrop(${c.id})" title="Delete" style="margin-left:6px;"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`).join('');
+        }
+
+        function filterTable() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const s = document.getElementById('statusFilter').value;
+            renderTable(crops.filter(c =>
+                (!q || c.name.toLowerCase().includes(q) || (c.type || '').toLowerCase().includes(q)) &&
+                (!s || c.status === s)
+            ));
+        }
+
+        function openModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Crop';
+            document.getElementById('cropId').value = '';
+            ['cropName', 'cropType', 'sowingDate', 'harvestDate', 'fieldLocation', 'growthStage', 'cropNotes'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('expectedYield').value = '';
+            document.getElementById('actualYield').value = '';
+            document.getElementById('cropStatus').value = 'SOWING';
+            document.getElementById('cropModal').classList.add('active');
+        }
+
+        function closeModal() { document.getElementById('cropModal').classList.remove('active'); }
+
+        function editCrop(id) {
+            const c = crops.find(x => x.id === id);
+            if (!c) return;
+            document.getElementById('modalTitle').textContent = 'Edit Crop';
+            document.getElementById('cropId').value = c.id;
+            document.getElementById('cropName').value = c.name || '';
+            document.getElementById('cropType').value = c.type || '';
+            document.getElementById('sowingDate').value = c.sowingDate || '';
+            document.getElementById('harvestDate').value = c.harvestDate || '';
+            document.getElementById('fieldLocation').value = c.fieldLocation || '';
+            document.getElementById('cropStatus').value = c.status || 'SOWING';
+            document.getElementById('growthStage').value = c.growthStage || '';
+            document.getElementById('expectedYield').value = c.expectedYield || '';
+            document.getElementById('actualYield').value = c.actualYield || '';
+            document.getElementById('cropNotes').value = c.notes || '';
+            document.getElementById('cropModal').classList.add('active');
+        }
+
+        async function saveCrop() {
+            const id = document.getElementById('cropId').value;
+            const body = {
+                name: document.getElementById('cropName').value.trim(),
+                type: document.getElementById('cropType').value.trim(),
+                sowingDate: document.getElementById('sowingDate').value || null,
+                harvestDate: document.getElementById('harvestDate').value || null,
+                fieldLocation: document.getElementById('fieldLocation').value.trim(),
+                status: document.getElementById('cropStatus').value,
+                growthStage: document.getElementById('growthStage').value.trim(),
+                expectedYield: parseFloat(document.getElementById('expectedYield').value) || null,
+                actualYield: parseFloat(document.getElementById('actualYield').value) || null,
+                notes: document.getElementById('cropNotes').value.trim()
+            };
+            if (!body.name) { showToast('Crop name is required', 'error'); return; }
+            try {
+                if (id) await apiPut(`/api/crops/${id}`, body);
+                else await apiPost(`/api/crops/farm/${getFarmId()}`, body);
+                showToast(id ? 'Crop updated!' : 'Crop added!', 'success');
+                closeModal(); loadCrops();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function deleteCrop(id) {
+            confirmDelete('Delete this crop record?', async () => {
+                try { await apiDelete(`/api/crops/${id}`); showToast('Crop deleted.', 'success'); loadCrops(); }
+                catch (e) { showToast(e.message, 'error'); }
+            });
+        }
+
+        loadCrops();
+    </script>
+</body>
+
+</html>
