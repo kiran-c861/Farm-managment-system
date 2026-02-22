@@ -2,9 +2,8 @@
  * API Helper - Centralized HTTP client with JWT injection.
  * All API calls go through these functions.
  */
-// ✅ Change this to your Railway URL when deployed:
-// const DEPLOYED_URL = 'https://your-app.up.railway.app';
-const DEPLOYED_URL = null; // Set your Railway URL here after deploying
+// ✅ Railway backend URL
+const DEPLOYED_URL = 'https://farm-managment-system-production.up.railway.app';
 
 const API_BASE = DEPLOYED_URL || 'http://localhost:8080';
 
